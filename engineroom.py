@@ -35,13 +35,11 @@ def update_samples(sample_dir):
 mixer.init()
 
 background_sound = mixer.Sound(background_noise)
-print background_sound
-print background_sound.set_volume(1.)
+background_sound.set_volume(1.)
 background_channel = background_sound.play(-1)
 
 samples = update_samples(sample_dir)
 
-print samples
 current_sound = None
 current_channel = None
 
