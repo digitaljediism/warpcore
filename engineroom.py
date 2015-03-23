@@ -27,14 +27,20 @@ from pygame import mixer
 import random
 import glob
 import sys
+import itertools
+import natsort
 
 if len(sys.argv) != 4:
-    print "usage: " + sys.argv[0] + " background_file sample_file sample_propability"
-    exit
+    print "usage: " + sys.argv[0] + " background_dir sample_dir sample_propability"
+    sys.exit(255)
 
-background_noise=sys.argv[1]
+background_dir=sys.argv[1]
 sample_dir=sys.argv[2]
 sample_p = float(sys.argv[3])
+
+background_samples = glob.glob(background_dir + "/*.ogg")
+background_samples = natsort.natsorted(background_samples)
+background_iterator = itertools.cycle(background_samples)
 
 def update_samples(sample_dir):
     samples = glob.glob(sample_dir + "/*.ogg")
@@ -43,9 +49,10 @@ def update_samples(sample_dir):
 
 mixer.init()
 
-background_sound = mixer.Sound(background_noise)
+background_sound = mixer.Sound(background_iterator.next())
 background_sound.set_volume(1.)
 background_channel = background_sound.play(-1)
+background_channel.queue(mixer.Sound(background_iterator.next()))
 
 samples = update_samples(sample_dir)
 
@@ -53,6 +60,8 @@ current_sound = None
 current_channel = None
 
 while True:
+    if background_channel.get_queue() == None:        
+        background_channel.queue(mixer.Sound(background_iterator.next()))
     time.sleep(1)
     if (not current_channel == None) and current_channel.get_busy():
         continue
@@ -64,5 +73,5 @@ while True:
         current_sound = mixer.Sound(samples.pop())
         current_sound.set_volume(1.)
         background_channel.pause()
-        current_channel = current_sound.play(maxtime=10000)
+        current_channel = current_sound.play()
     
