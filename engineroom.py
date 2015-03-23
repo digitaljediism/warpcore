@@ -31,7 +31,7 @@ import itertools
 import natsort
 
 if len(sys.argv) != 4:
-    print "usage: " + sys.argv[0] + " background_dir sample_dir sample_propability"
+    print "usage: " + sys.argv[0] + " background_dir sample_dir sample_probability"
     sys.exit(255)
 
 background_dir=sys.argv[1]
@@ -69,7 +69,6 @@ while True:
     if background_channel.get_queue() == None:
         background_channel.queue(mixer.Sound(background_iterator.next()))
     time.sleep(1)
-    print it.next()
 
     if random.random() < sample_p:
         if len(samples) == 0:
