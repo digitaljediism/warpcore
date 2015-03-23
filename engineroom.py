@@ -39,39 +39,40 @@ sample_dir=sys.argv[2]
 sample_p = float(sys.argv[3])
 
 background_samples = glob.glob(background_dir + "/*.ogg")
+
+if len(background_samples) == 0:
+    print "No background_samples found in " + background_dir
+    sys.exit(253)
+
 background_samples = natsort.natsorted(background_samples)
 background_iterator = itertools.cycle(background_samples)
 
 def update_samples(sample_dir):
     samples = glob.glob(sample_dir + "/*.ogg")
+    if len(samples) == 0:
+        print "No samples found in " + sample_dir
+        sys.exit(254)
+
     random.shuffle(samples)
     return samples
 
 mixer.init()
+random.seed()
 
 background_sound = mixer.Sound(background_iterator.next())
 background_sound.set_volume(1.)
 background_channel = background_sound.play()
-background_channel.queue(mixer.Sound(background_iterator.next()))
 
 samples = update_samples(sample_dir)
 
-current_sound = None
-current_channel = None
-
 while True:
-    if background_channel.get_queue() == None:        
+    if background_channel.get_queue() == None:
         background_channel.queue(mixer.Sound(background_iterator.next()))
     time.sleep(1)
-    if (not current_channel == None) and current_channel.get_busy():
-        continue
-    else:
-        background_channel.unpause()
+    print it.next()
+
     if random.random() < sample_p:
         if len(samples) == 0:
             samples = update_samples(sample_dir)
-        current_sound = mixer.Sound(samples.pop())
-        current_sound.set_volume(1.)
-        background_channel.pause()
-        current_channel = current_sound.play()
-    
+        background_channel.queue(mixer.Sound(samples.pop()))
+                
